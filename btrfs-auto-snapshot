@@ -178,7 +178,7 @@ do_snapshot ()
                         mkdir -p $opt_mountpoint/$ii/$opt_snapdir
                 fi
                 if [ ! -d "$opt_mountpoint/$ii/$opt_snapdir$SNAPNAME" ]; then
-                        if do_run "btrfs sub snapshot -r $opt_mountpoint/$ii $opt_mountpoint/$ii/$opt_snapdir$SNAPNAME"; then
+                        if do_run "btrfs sub snapshot -r $opt_mountpoint/$ii $opt_mountpoint/$ii/$opt_snapdir$SNAPNAME" > /dev/null; then
                                 SNAPSHOT_COUNT=$(( $SNAPSHOT_COUNT + 1 ))
                         else
                                 WARNING_COUNT=$(( $WARNING_COUNT + 1 ))

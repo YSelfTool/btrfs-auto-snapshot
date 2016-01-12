@@ -24,20 +24,20 @@
 
 tmp_dir='/tmp/btrfs-snap'
 opt_syslog=''
-opt_dev=$(mount | grep " / " | awk '{print $1}')
+#opt_dev=$(mount | grep " / " | awk '{print $1}')
+opt_dev=$(mount -t btrfs | awk '{print $1}')
 opt_dry_run=''
 opt_quiet=''
 opt_verbose=''
 opt_keep=''
 opt_label='regular'
-opt_prefix='btrfs-auto-snap'
+opt_prefix='snap'
 opt_recursive=''
 opt_sep='_'
 opt_rootvolid='0'
-opt_createdirs=''
+opt_createdirs='1'
 opt_mountpoint=${tmp_dir}
-#opt_snapdir='.btrfs/snapshot/'
-opt_snapdir=''
+opt_snapdir='.snapshot/'
 
 # what is name for snapshot which is normaly mounted as running filesystem (if SUBVOL/@running, then use "@running")
 opt_runningcopyin='@'
@@ -178,7 +178,7 @@ do_snapshot ()
                         mkdir -p $opt_mountpoint/$ii/$opt_snapdir
                 fi
                 if [ ! -d "$opt_mountpoint/$ii/$opt_snapdir$SNAPNAME" ]; then
-                        if do_run "btrfs sub snapshot $opt_mountpoint/$ii/$opt_runningcopyin $opt_mountpoint/$ii/$opt_snapdir$SNAPNAME"; then
+                        if do_run "btrfs sub snapshot $opt_mountpoint/$ii $opt_mountpoint/$ii/$opt_snapdir$SNAPNAME"; then
                                 SNAPSHOT_COUNT=$(( $SNAPSHOT_COUNT + 1 ))
                         else
                                 WARNING_COUNT=$(( $WARNING_COUNT + 1 ))
@@ -186,7 +186,6 @@ do_snapshot ()
                 else
                         print_log warning "Snapshot or volume with this name already exists, skipping $ii/$opt_snapdir$SNAPNAME"
                 fi
-
                 KEEP="$opt_keep"
                 test -z "$KEEP" && continue
                 if [ "$ii" = "." ]; then
@@ -255,8 +254,8 @@ else
 fi
 
 GETOPT=$(getopt \
-        --longoptions=label:,prefix:,verbose,debug,rootvolid:,mountdir:,dev:,dry-run,dirs,syslog,keep:,name: \
-        --options=p:dvl:i:m:nhtsk:e: \
+        --longoptions=label:,prefix:,verbose,debug,quiet,rootvolid:,mountdir:,dev:,dry-run,dirs,syslog,keep:,name: \
+        --options=p:dqvl:i:m:nhtsk:e: \
         -- "$@" ) \
         || exit 128
 
@@ -311,6 +310,10 @@ do
                         opt_mountpoint="$2"
                         shift 2
                         ;;
+		(-q|--quiet)
+			opt_quiet='1'
+			shift 1
+			;;
                 (--dirs|-t)
                         opt_createdirs='1'
                         shift 1
@@ -395,7 +398,7 @@ case $opt_command in
 			exit 134
 		fi
 
-		BTRFS_LIST=$(btrfs sub list ${opt_mountpoint} | sort -k7 | grep -v ${opt_delim} | awk '{print $7}')  \
+		BTRFS_LIST=$(btrfs sub list ${opt_mountpoint} | sort -k7 | grep -v ${opt_delim} | awk '{print $9}')  \
 			|| { print_log error "unable to get list of volumes"; exit 102; }
 
 		BTRFS_LIST=$(printf "%s\n" "$BTRFS_LIST")

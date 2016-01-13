@@ -37,7 +37,7 @@ opt_sep='_'
 opt_rootvolid='0'
 opt_createdirs='1'
 opt_mountpoint=${tmp_dir}
-opt_snapdir='.snapshot/'
+opt_snapdir='.btrfs/'
 
 # what is name for snapshot which is normaly mounted as running filesystem (if SUBVOL/@running, then use "@running")
 opt_runningcopyin='@'
@@ -158,7 +158,7 @@ do_destroy ()
         dSNAP=$(eval echo "$1 | awk '{sub(/$opt_delim/,\"$opt_snapdir$opt_delim\")}; 1'")
 
         print_log debug "Destroying $opt_mountpoint/$dSNAP"
-        if do_run "btrfs sub delete $opt_mountpoint/$dSNAP"; then
+        if do_run "btrfs sub delete $opt_mountpoint/$dSNAP > /dev/null"; then
                 DESTROY_COUNT=$(( $DESTROY_COUNT + 1 ))
         else
                 WARNING_COUNT=$(( $WARNING_COUNT + 1 ))
@@ -432,10 +432,10 @@ case $opt_command in
 esac
 
 if [ -n "$opt_snapdir" ]; then 
-    SNAPSHOTS_OLD=$(btrfs sub list ${opt_mountpoint} | sort -k7r | grep ${opt_snapdir}${opt_delim} | awk '{print $9}' | awk -F"$opt_snapdir" '{print $1 $2}') \
+    SNAPSHOTS_OLD=$(btrfs sub list ${opt_mountpoint} | sort -k9r | grep ${opt_snapdir}${opt_delim} | awk '{print $9}' | awk -F"$opt_snapdir" '{print $1 $2}') \
     || { print_log error "unable to get list of snapshots"; exit 103; }
 else
-    SNAPSHOTS_OLD=$(btrfs sub list ${opt_mountpoint} | sort -k7r | grep ${opt_delim} | awk '{print $9}') \
+    SNAPSHOTS_OLD=$(btrfs sub list ${opt_mountpoint} | sort -k9r | grep ${opt_delim} | awk '{print $9}') \
     || { print_log error "unable to get list of snapshots"; exit 103; }
 fi
 

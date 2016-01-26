@@ -368,7 +368,7 @@ while true; do
         fi  
         print_log error "another copy is running ... $COUNTER"
         test "$COUNTER" -gt '11' && exit 99
-        sleep 5
+        sleep 30
         COUNTER=$(( $COUNTER + 1 ))
 done
 trap "umount ${opt_mountpoint} ; rmdir '${tmp_dir}'" INT TERM EXIT

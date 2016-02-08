@@ -372,7 +372,6 @@ while true; do
         COUNTER=$(( $COUNTER + 1 ))
 done
 trap "umount ${opt_mountpoint} ; rmdir '${tmp_dir}'" INT TERM EXIT
-print_log error "waited long enough... making snapshot now"
 
 test -d $opt_mountpoint/$opt_snapdir && test -n "$opt_snapdir" && opt_vroot='1'
 
